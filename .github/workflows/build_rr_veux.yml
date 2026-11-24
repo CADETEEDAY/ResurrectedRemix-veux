@@ -1,0 +1,68 @@
+name: Build Resurrected Remix (veux)
+
+on:
+  workflow_dispatch:
+    inputs:
+      sync_repo:
+        description: 'Sincronizar código-fonte (repo sync)?'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      clean_build:
+        description: 'Fazer build limpa (make installclean)?'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  build:
+    runs-on: self-hosted
+    env:
+      USE_CCACHE: 1
+      CCACHE_EXEC: /usr/bin/ccache
+
+    steps:
+      - name: Checkout do repositório de configuração
+        uses: actions/checkout@v4
+
+      - name: Verificar espaço em disco e memória
+        run: |
+          df -h
+          free -h
+          mkdir -p "$HOME/android/rr/.repo/local_manifests"
+
+      - name: Configurar ccache (50GB)
+        run: |
+          ccache -M 50G
+          ccache -s
+
+      - name: Inicializar e Sincronizar Resurrected Remix
+        if: ${{ github.event.inputs.sync_repo == 'true' }}
+        run: |
+          cd "$HOME/android/rr"
+          repo init -u https://github.com/ResurrectedRemixOS/manifest -b rr-17.0 --git-lfs --depth=1
+          cp "${{ github.workspace }}/local_manifest.xml" .repo/local_manifests/veux.xml
+          repo sync -c -d --no-clone-bundle --no-tags --optimized-fetch --prune -j$(nproc --all)
+
+      - name: Preparar ambiente e Compilar
+        run: |
+          cd "$HOME/android/rr"
+          source build/envsetup.sh
+          lunch rr_veux-userdebug
+          
+          if [ "${{ github.event.inputs.clean_build }}" == "true" ]; then
+            make installclean
+          fi
+          
+          mka bacon -j$(nproc --all)
+
+      - name: Listar arquivos gerados
+        run: |
+          ls -lh "$HOME/android/rr/out/target/product/veux/"*.zip
+          ls -lh "$HOME/android/rr/out/target/product/veux/"*.img
