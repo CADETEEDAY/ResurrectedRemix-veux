@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <!-- Remotes -->
+    <remote name="veux-devs" fetch="https://github.com/xiaomi-sm6375-devs" />
+    <remote name="meu-github" fetch="https://github.com/CADETEEDAY" />
+
+    <!-- Device Tree (apontando para o seu fork na branch rr-17.0) -->
+    <project path="device/xiaomi/veux" name="android_device_xiaomi_veux" remote="meu-github" revision="rr-17.0" />
+    <project path="device/xiaomi/sm6375-common" name="android_device_xiaomi_sm6375-common" remote="veux-devs" revision="lineage-23.2" />
+
+    <!-- Kernel -->
+    <project path="kernel/xiaomi/sm6375" name="android_kernel_xiaomi_sm6375" remote="veux-devs" revision="lineage-23.2" />
+
+    <!-- Vendor Blobs -->
+    <project path="vendor/xiaomi/veux" name="proprietary_vendor_xiaomi_veux" remote="veux-devs" revision="lineage-23.2" />
+    <project path="vendor/xiaomi/sm6375-common" name="proprietary_vendor_xiaomi_sm6375-common" remote="veux-devs" revision="lineage-23.2" />
+
+    <!-- Hardware Xiaomi -->
+    <project path="hardware/xiaomi" name="android_hardware_xiaomi" remote="LineageOS" revision="lineage-23.2" />
+</manifest>
